@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "./prng.h"
+#include "prng.h"
 
 int main(int n, char ** args) {
   xorshift64s r1 = 42;
@@ -9,13 +9,13 @@ int main(int n, char ** args) {
   puts("r1:");
   for (int i = 0; i < 30; i++) {
     u64 x = prng_next(&r1);
-    printf("%e   %ld\n", prng_f64_of(x), x);
+    printf("%e   %llu\n", prng_f64_of(x), x);
   }
 
   puts("\nr2:");
 
   for (int i = 0; i < 30; i++) {
     u64 x = prng_next(&r2);
-    printf("%e   %ld\n", prng_f64_of(x), x);
+    printf("%e   %llu\n", prng_f64_of(x), x);
   }
 }

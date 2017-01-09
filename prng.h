@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include "types.h"
 
 // a reimplementation of http://xorshift.di.unimi.it/
 // TODO:
@@ -8,16 +8,6 @@
 //		add jump functions
 //    pass them through http://simul.iro.umontreal.ca/testu01/tu01.html
 //    add xorshift128+, xorshift1024*
-
-// TODO: use custom int types header instead
-typedef int32_t i32;
-typedef int64_t i64;
-
-typedef uint64_t u64;
-typedef uint32_t u32;
-
-typedef float f32;
-typedef double f64;
 
 // TODO: consider renaming to prng_t, or prng_t1
 typedef u64 xorshift64s;
