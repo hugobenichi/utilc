@@ -1,29 +1,25 @@
 #include <assert.h>
+#include <stdint.h>
 
-typedef float               f32;
-typedef double              f64;
+typedef float     f32;
+typedef double    f64;
 
-typedef signed char         i8;
-typedef signed short        i16;
-typedef signed int          i32;
-typedef signed long int     i64;
+typedef int8_t    i8;
+typedef int16_t   i16;
+typedef int32_t   i32;
+typedef int64_t   i64;
 
-typedef unsigned char       u8;
-typedef unsigned short      u16;
-typedef unsigned int        u32;
-typedef unsigned long int   u64;
+typedef uint8_t   u8;
+typedef uint16_t  u16;
+typedef uint32_t  u32;
+typedef uint64_t  u64;
 
 #define _define_tuple_of(name, type)  struct name {\
                                         type x; \
                                         type y; \
                                       }
-//_define_tuple_of(Tuple2_Of_F32, f32);
 
 _define_tuple_of(Tuple2_Of_F32, f32);
-//struct Tuple2_Of_F32 {
-//  f32 x;
-//  f32 y;
-//};
 
 struct Tuple3_Of_F32 {
   f32 x;
