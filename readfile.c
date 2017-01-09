@@ -1,13 +1,12 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
+
+#include "macro.h"
 
 #define err_if(expr) if (expr) return -1
 
-//+++ DEBUG utilz +++//
-
-#define P(format, ...)  printf(#__VA_ARGS__ " = " #format "\n", __VA_ARGS__)
 
 
 // +++ utilz +++ //
