@@ -5,11 +5,8 @@
 #include <nmmintrin.h>
 #include <smmintrin.h>
 
-#include "./types.h"
-
-#define _addr_shift(ptr, offset) (void*)( (u8*)(ptr) + offset )
-
-#define P(format, ...)  printf(#__VA_ARGS__ " = " #format "\n", __VA_ARGS__)
+#include "types.h"
+#include "macro.h"
 
 // benchmark for 1e6 elems
 //  - O2: ~95us
@@ -54,6 +51,8 @@ i64 timestamp_us() {
 }
 
 int main(int argc, char **args) {
+  geom_tests();
+  if (1) { return 0; }
 
   #define count 100000
 
@@ -80,6 +79,5 @@ int main(int argc, char **args) {
   u64 end = timestamp_us();
 
   printf("(x,y) = (%f,%f)\n", v -> x / count, v -> y / count);
-  printf("elapsed %ld us\n", end - start);
-  //geom_tests();
+  printf("elapsed %llu us\n", end - start);
 }

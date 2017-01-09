@@ -14,43 +14,33 @@ typedef uint16_t  u16;
 typedef uint32_t  u32;
 typedef uint64_t  u64;
 
-#define _define_tuple_of(name, type)  struct name {\
+#define _define_tuple2_of(name, type)  struct name {\
                                         type x; \
                                         type y; \
                                       }
+#define _define_tuple3_of(name, type)  struct name {\
+                                        type x; \
+                                        type y; \
+                                        type z; \
+                                      }
+#define _define_tuple4_of(name, type)  struct name {\
+                                        type x; \
+                                        type y; \
+                                        type z; \
+                                        type t; \
+                                      }
 
-_define_tuple_of(Tuple2_Of_F32, f32);
+_define_tuple2_of(Tuple2_Of_F32, f32);
+_define_tuple3_of(Tuple3_Of_F32, f32);
+_define_tuple4_of(Tuple4_Of_F32, f32);
 
-struct Tuple3_Of_F32 {
-  f32 x;
-  f32 y;
-  f32 z;
-};
+_define_tuple2_of(Tuple2_Of_F64, f64);
+_define_tuple3_of(Tuple3_Of_F64, f64);
+_define_tuple4_of(Tuple4_Of_F64, f64);
 
-struct Tuple4_Of_F32 {
-  f32 x;
-  f32 y;
-  f32 z;
-  f32 t;
-};
-
-struct Tuple2_Of_F64 {
-  f64 x;
-  f64 y;
-};
-
-struct Tuple3_Of_F64 {
-  f64 x;
-  f64 y;
-  f64 z;
-};
-
-struct Tuple4_Of_F64 {
-  f64 x;
-  f64 y;
-  f64 z;
-  f64 t;
-};
+#undef _define_tuple2_of
+#undef _define_tuple3_of
+#undef _define_tuple4_of
 
 // Complex numbers
 typedef struct Tuple2_Of_F32 c64;
@@ -65,11 +55,11 @@ typedef struct Tuple2_Of_F64 v2_128;
 typedef struct Tuple3_Of_F64 v3_192;
 typedef struct Tuple4_Of_F64 v4_256;
 
-// Quaternions ...
+// TODO: Quaternions ...
 
-// RGB pixels ...
+// TODO: RGB pixels ...
 
-// RGBA pixels ...
+// TODO: RGBA pixels ...
 
 void geom_tests() {
   #define _assert_sizeof(t, s) assert(sizeof(t) == s)
