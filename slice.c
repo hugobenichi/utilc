@@ -1,23 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 #include <assert.h>
 
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
+#include "types.h"
+#include "macro.h"
 
 // Arrays: DOCME
-struct array {
+struct Array {
   int len; // TODO: should be unsigned
   int max;
   void* ptr; // TODO consider tagging the ptr last bit to indicate alignement ?
 };
 
-void array_borrow(struct array* a, void* ptr, int capacity) {
+typedef struct Array array;
+
+void array_borrow(array* a, void* ptr, int capacity) {
   a->len = 0;
   a->max = capacity;
   a->ptr = ptr;
@@ -26,8 +24,8 @@ void array_borrow(struct array* a, void* ptr, int capacity) {
 // array_make allocate one block only, therefore
 //   - should ptr go away and memory be appended right after ?
 //   - or is there a way to allow both borrowed arrays (non-contiguous ptr) and owned arrays ?
-struct array* array_make(int capacity) {
-  struct array* a;
+array* array_make(int capacity) {
+  array* a;
   size_t total_size = sizeof(*a) + capacity;
   a = malloc(total_size);
   if (a) {
@@ -36,7 +34,7 @@ struct array* array_make(int capacity) {
   return a;
 }
 
-void array_add_obj(struct array* a, void* obj, size_t obj_len) {
+void array_add_obj(array* a, void* obj, size_t obj_len) {
   size_t need = a->len + obj_len;
   if (need > a->max) {
     int new_max = a->len;
@@ -53,83 +51,71 @@ void array_add_obj(struct array* a, void* obj, size_t obj_len) {
   a->len += obj_len;
 }
 
-
 #define _instantiate_array_getter(name, type) \
-  type* name(struct array* a, int idx) { \
+  type* name (array* a, int idx) { \
     type *p = (type*) a->ptr; \
     assert(idx * sizeof(*p) < a->len); \
     return p + idx; \
   }
-
 _instantiate_array_getter(array_get_u8, u8);
 _instantiate_array_getter(array_get_u16, u16);
 _instantiate_array_getter(array_get_u32, u32);
 _instantiate_array_getter(array_get_u64, u64);
+#undef _instantiate_array_getter
+
+#define _instantiate_array_last(name, type) \
+  type* name (array* a) { \
+    return _cat(array_get_, type) (a, a->len-1); \
+  }
+
+_instantiate_array_last(array_last_u8, u8);
+_instantiate_array_last(array_last_u16, u16);
+_instantiate_array_last(array_last_u32, u32);
+_instantiate_array_last(array_last_u64, u64);
+#undef _instantiate_array_last
+
+// TODO: add_u* or grow. use case: append element
 
 // Slices: DOCME
 
-struct slice {
-  void* mem;
+struct Slice {
+  array *a;
+  int start;
   int len;
-  int max;
 };
 
-struct slice slice_make(int len) {
-  return (struct slice) {
-    .mem = malloc(len),
-    .len = len,
-    .max = len,
-  };
+typedef struct Slice slice;
+
+#define _slice_borrow(ary_ptr) (slice) { .a = ary_ptr, .start = 0, .len = ary_ptr -> len }
+
+slice slice_make(int capacity) {
+  array *a = array_make(capacity);
+  return _slice_borrow(a);
 }
 
-struct slice slice_concat(struct slice s, void* obj, int obj_len) {
-  int need = s.len + obj_len;
-  if (need > s.max) {
-    // TODO: how to use realloc ?
-    //  - need to know how mem was alloced
-    //  - or require parametrized allocator
-    int new_max = s.len;
-    while (new_max < need) {
-      new_max *= 2;
-    }
-    void* new_mem = malloc(new_max);
-    if (!new_mem) {
-        // abort
-    }
-    memcpy(new_mem, s.mem, s.len);
-    s.mem = new_mem;
-    s.max = new_max;
-  }
-  memcpy(s.mem + s.len, obj, obj_len);
+slice slice_concat(slice s, void* obj, int obj_len) {
+  array_add_obj(s.a, obj, obj_len);
   s.len += obj_len;
   return s;
 }
-
-struct slice slice_concat_owned(struct slice s, void* obj, int obj_len) {
-  void* mem = s.mem;
-  s = slice_concat(s, obj, obj_len);
-  if (mem != s.mem) free(mem);
-  return s;
-}
-
-#define _slice_clear(s) s.len = 0
 
 void example() {
     const char* bla = "bla";
     int bla_len = strlen(bla);
     int repeat = 10;
 
-    struct slice s = slice_make(5); //repeat * bla_len + 1);
+    slice s = slice_make(5); //repeat * bla_len + 1);
     s.len = 0;
 
     for (int i = 0; i < repeat; i++) {
-        s = slice_concat_owned(s, (void*) bla, bla_len);
+        s = slice_concat(s, (void*) bla, bla_len);
     }
     printf("s.len = %d\n", s.len);
 
-    *(char *)(s.mem + s.len) = 0;
+    *array_last_u8(s.a) = 0;
+    //*(char *)(s.a->ptr + s.len) = 0;
 
-    printf("%s\n", s.mem);
+    printf("%s\n", s.a->ptr);
 }
 
 int main(int argc, char** args) {
