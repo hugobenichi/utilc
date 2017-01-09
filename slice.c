@@ -1,6 +1,72 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
+#include <assert.h>
+
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+
+
+// Arrays: DOCME
+struct array {
+  int len; // TODO: should be unsigned
+  int max;
+  void* ptr; // TODO consider tagging the ptr last bit to indicate alignement ?
+};
+
+void array_borrow(struct array* a, void* ptr, int capacity) {
+  a->len = 0;
+  a->max = capacity;
+  a->ptr = ptr;
+}
+
+// array_make allocate one block only, therefore
+//   - should ptr go away and memory be appended right after ?
+//   - or is there a way to allow both borrowed arrays (non-contiguous ptr) and owned arrays ?
+struct array* array_make(int capacity) {
+  struct array* a;
+  size_t total_size = sizeof(*a) + capacity;
+  a = malloc(total_size);
+  if (a) {
+    array_borrow(a, a + sizeof(*a), capacity);
+  }
+  return a;
+}
+
+void array_add_obj(struct array* a, void* obj, size_t obj_len) {
+  size_t need = a->len + obj_len;
+  if (need > a->max) {
+    int new_max = a->len;
+    while (new_max < need) {
+      new_max *= 2;
+    }
+    a->ptr = realloc(a, new_max + sizeof(*a));
+    if (a->ptr) {
+        return;
+    }
+    a->max = new_max;
+  }
+  memcpy(a->ptr + a->len, obj, obj_len);
+  a->len += obj_len;
+}
+
+
+#define _instantiate_array_getter(name, type) \
+  type* name(struct array* a, int idx) { \
+    type *p = (type*) a->ptr; \
+    assert(idx * sizeof(*p) < a->len); \
+    return p + idx; \
+  }
+
+_instantiate_array_getter(array_get_u8, u8);
+_instantiate_array_getter(array_get_u16, u16);
+_instantiate_array_getter(array_get_u32, u32);
+_instantiate_array_getter(array_get_u64, u64);
+
+// Slices: DOCME
 
 struct slice {
   void* mem;
