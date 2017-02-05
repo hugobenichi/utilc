@@ -18,3 +18,10 @@ List of components
  * colors: HSL, RGB, ..., color filter effects ?
  * bitmap
  * prettyprint: struct printer
+
+
+TODOS
+=====
+
+  * vec: remove double precision vecs, flesh out basic operations
+  * vec: add matrics types, add matrix operation, add mat, vec operations

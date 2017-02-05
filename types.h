@@ -1,3 +1,5 @@
+#pragma once
+
 #include <assert.h>
 #include <stdint.h>
 
@@ -61,7 +63,7 @@ typedef struct Tuple4_Of_F64 v4_256;
 
 // TODO: RGBA pixels ...
 
-void geom_tests() {
+static void geom_tests() {
   #define _assert_sizeof(t, s) assert(sizeof(t) == s)
   _assert_sizeof(i8, 1);
   _assert_sizeof(i16, 2);

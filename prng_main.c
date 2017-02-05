@@ -18,4 +18,10 @@ int main(int n, char ** args) {
     u64 x = prng_next(&r2);
     printf("%e   %llu\n", prng_f64_of(x), x);
   }
+
+  r2++;
+  for (int i = 0; i < 10; i++) {
+    u64 x = prng_next(&r2);
+    printf("%llu\n", x % 3);
+  }
 }
